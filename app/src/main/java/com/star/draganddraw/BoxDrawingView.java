@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PointF;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -15,6 +17,8 @@ import java.util.ArrayList;
 public class BoxDrawingView extends View {
 
     public static final String TAG = "BoxDrawingView";
+
+    public static final String BUNDLE_KEY = "bundleKey";
 
     private Box mCurrentBox;
     private ArrayList<Box> mBoxes = new ArrayList<>();
@@ -53,6 +57,11 @@ public class BoxDrawingView extends View {
                 Log.i(TAG, " ACTION_MOVE");
                 if (mCurrentBox != null) {
                     mCurrentBox.setCurrent(curr);
+                    if (event.getPointerCount() == 2) {
+                        int angle = (int) (Math.atan((event.getY(1) - event.getY(0)) /
+                                        (event.getX(1) - event.getX(0))) * 360 / (2 * Math.PI));
+                        mCurrentBox.setAngle(angle);
+                    }
                     invalidate();
                 }
                 break;
@@ -79,7 +88,33 @@ public class BoxDrawingView extends View {
             float top = Math.min(box.getOrigin().y, box.getCurrent().y);
             float bottom = Math.max(box.getOrigin().y, box.getCurrent().y);
 
+            canvas.save();
+
+            int centerX = (int) (box.getOrigin().x + box.getCurrent().x) / 2;
+            int centerY = (int) (box.getOrigin().y + box.getCurrent().y) / 2;
+            canvas.rotate(box.getAngle(), centerX, centerY);
             canvas.drawRect(left, top, right, bottom, mBoxPaint);
+
+            canvas.restore();
+        }
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(BUNDLE_KEY, super.onSaveInstanceState());
+        bundle.putSerializable(BUNDLE_KEY, mBoxes);
+
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state != null && state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            mBoxes = (ArrayList<Box>) bundle.getSerializable(BUNDLE_KEY);
+            super.onRestoreInstanceState(bundle.getParcelable(BUNDLE_KEY));
+            invalidate();
         }
     }
 }

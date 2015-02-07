@@ -8,8 +8,11 @@ public class Box {
     private PointF mOrigin;
     private PointF mCurrent;
 
+    private int mAngle;
+
     public Box(PointF origin) {
         mOrigin = mCurrent = origin;
+        mAngle = 0;
     }
 
     public PointF getCurrent() {
@@ -22,5 +25,13 @@ public class Box {
 
     public PointF getOrigin() {
         return mOrigin;
+    }
+
+    public int getAngle() {
+        return mAngle;
+    }
+
+    public void setAngle(int angle) {
+        mAngle = angle;
     }
 }
