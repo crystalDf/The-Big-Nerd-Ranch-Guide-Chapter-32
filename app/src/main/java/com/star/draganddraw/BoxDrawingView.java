@@ -47,7 +47,7 @@ public class BoxDrawingView extends View {
 
         Log.i(TAG, "Received event at x=" + curr.x + ", y=" + curr.y + ":");
 
-        switch (event.getAction()) {
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 Log.i(TAG, " ACTION_DOWN");
                 mCurrentBox = new Box(curr);
@@ -58,8 +58,8 @@ public class BoxDrawingView extends View {
                 if (mCurrentBox != null) {
                     mCurrentBox.setCurrent(curr);
                     if (event.getPointerCount() == 2) {
-                        int angle = (int) (Math.atan((event.getY(1) - event.getY(0)) /
-                                        (event.getX(1) - event.getX(0))) * 360 / (2 * Math.PI));
+                        int angle = (int) Math.toDegrees(Math.atan((event.getY(1) - event.getY(0)) /
+                                        (event.getX(1) - event.getX(0))));
                         mCurrentBox.setAngle(angle);
                     }
                     invalidate();
@@ -114,7 +114,7 @@ public class BoxDrawingView extends View {
             Bundle bundle = (Bundle) state;
             mBoxes = (ArrayList<Box>) bundle.getSerializable(BUNDLE_KEY);
             super.onRestoreInstanceState(bundle.getParcelable(BUNDLE_KEY));
-            invalidate();
+//            invalidate();
         }
     }
 }
